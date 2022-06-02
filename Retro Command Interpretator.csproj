@@ -1,0 +1,34 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net6.0-windows</TargetFramework>
+    <RootNamespace>Retro_Command_Interpretator</RootNamespace>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <StartupObject>Retro_Command_Interpretator.Program</StartupObject>
+    <ApplicationIcon>cmd_IDI_APPICON.ico</ApplicationIcon>
+    <Nullable>enable</Nullable>
+    <Authors>danilwhale</Authors>
+    <Company>danilwhale software</Company>
+    <NeutralLanguage>en</NeutralLanguage>
+	  <LangVersion>preview</LangVersion>
+	  <AssemblyVersion>1.1</AssemblyVersion>
+	  <FileVersion>1.1</FileVersion>
+	  <Version>1.1</Version>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <WarningLevel>7</WarningLevel>
+    <DebugType>embedded</DebugType>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <WarningLevel>7</WarningLevel>
+    <DebugType>embedded</DebugType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="cmd_IDI_APPICON.ico" />
+  </ItemGroup>
+
+</Project>
