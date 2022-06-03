@@ -3,21 +3,15 @@
 namespace Retro_Command_Interpretator;
 public static class RCI_Core
 {
-    static string changelog = 
+    static string changelog =
         """
-        RCI Changelog
+        
         RCI 1.1
-        - Changed syntaxis
-        - Changed namespace reference (from -> to ::)
-        - Now functions calls like: namespace::function argument.
-          Not like: namespace->function: argument
-        - Added some functions to File namespace
-        - Added iteration with directories (no yet removing)
-        - Switched C# version to "preview" (.NET 6.0.2 still)
-        - Now you can add not required arguments for such commands as "help", 
-          and others whichs not require arguments
-        - Added messages on start with .NET and Windows version
-        - Title now is Retro Command Interpreter with its version
+        - Changed function calling (from namespace->function: argument to namespace::function argument)
+        - Changed syntaxis from C#-like to C/C++-like (CleanScreen to cleanScreen)
+        - Added 2 new functions to File namespace
+        - Added on-start information with RCI, .NET, OS versions
+        - Improved namespace code
 
         RCI 1.0
         - Initial release
@@ -34,22 +28,22 @@ public static class RCI_Core
             WriteError("Invalid namespace usage");
         else
         {
-            if (namefunc[1].Contains(':')) // if this a function which can have arguments
+            if (namefunc[1].Contains(' ')) // if this a function which can have arguments
             {
-                string args = namefunc[1][(namefunc[1].IndexOf(':') + 1) .. ]; // seems bad coded, but works, it gets argument of command
+                string args = namefunc[1][(namefunc[1].IndexOf(' ') + 1) .. ]; // seems bad coded, but works, it gets argument of command
 
                 if (args[0] == ' ')
                     args = args.Remove(0, 1);
                 if (args[args.IndexOf(';') + 1] == ' ')
                     args = args.Remove(args.IndexOf(';') + 1, 1);
 
-                Console.WriteLine(args);
+                namefunc[1] = namefunc[1].Split(' ')[0];
 
                 Namespace.Execute(namefunc[0], namefunc[1], args); // executing it
             }
             else // else if not
             {
-                Namespace.Execute(namefunc[0], namefunc[1], "bla"); // we just send "bla" argument to function (lol)
+                Namespace.Execute(namefunc[0], namefunc[1], null); // we just send "bla" argument to function (lol)
             }
         }
 
@@ -66,7 +60,8 @@ public static class RCI_Core
             "-- cleanScreen - cleans screen\n" +
             "-- whatsHere - print current directory content\n" +
             "-- goIn <directory> - goes in to specified directory\n" +
-            "-- changelog - prints changes" +
+            "-- changelog - prints changes\n" +
+            "-- run <file> - runs file out of RCI" +
             "Namespaces (NAMESPACE::FUNCTION ARGUMENT):\n" +
             "- Time namespace:\n" +
             "-- nowDate - prints date\n" +
@@ -172,23 +167,12 @@ public class Namespace
     /// <summary>
     /// Array of functions
     /// </summary>
-    private readonly Function[] functions;
+    public Function[] Functions = Array.Empty<Function>();
     /// <summary>
     /// Name of namespace
     /// </summary>
-    public string Name { get; set; }
+    public string Name { get; set; } = string.Empty;
 
-
-    /// <summary>
-    /// Namespace ctor (constructor)
-    /// </summary>
-    /// <param name="functions">Array of functions</param>
-    /// <param name="name">Name of namespace</param>
-    public Namespace(Function[] functions, string name)
-    {
-        this.functions = functions;
-        this.Name = name;
-    }
     /// <summary>
     /// Indexator to get function in this namespace
     /// </summary>
@@ -196,7 +180,7 @@ public class Namespace
     /// <returns></returns>
     public Function? this[string name]
     {
-        get { return Array.Find(functions, f => f.Name == name); }
+        get { return Array.Find(Functions, f => f.Name == name); }
     }
     /// <summary>
     /// Executes function in namespace
@@ -205,57 +189,30 @@ public class Namespace
     /// <param name="_function">Name of function</param>
     /// <param name="argument">Argument</param>
     /// <exception cref="InterpreterException">If, function invalid</exception>
-    public static void Execute(string _namespace, string _function, object argument)
+    public static void Execute(string _namespace, string _function, object? argument)
     {
-        if (_namespace == FileStreamNamespace.Namespace.Name)
+        foreach (Namespace ns in BasicNamespaces.namespaces)
         {
-            try
+            if (ns.Name == _namespace)
             {
-                Function? func = FileStreamNamespace.Namespace[_function.Remove(_function.IndexOf(' '))];
-                if (func != null)
-                    func.Execute(argument);
-                else
-                    throw new InterpreterException("Function is invalid");
+                try
+                {
+                    Function? func = ns[_function];
+
+                    if (func != null)
+                        func?.Execute(argument);
+                    else
+                        throw new InterpreterException($"Invalid function");
+                }
+                catch (InterpreterException ex)
+                {
+                    RCI_Core.WriteError(ex.Message);
+                }
+                catch (Exception ex)
+                {
+                    RCI_Core.WriteError(ex.ToString());
+                }
             }
-            catch (ArgumentOutOfRangeException)
-            {
-                Function? func = FileStreamNamespace.Namespace[_function];
-                if (func != null)
-                    func.Execute(argument);
-                else
-                    throw new InterpreterException("Function is invalid");
-            }
-            catch (Exception ex)
-            {
-                RCI_Core.WriteError(ex.ToString());
-            }
-        }
-        else if (_namespace == TimeNamespace.Namespace.Name)
-        {
-            try
-            {
-                Function? func = TimeNamespace.Namespace[_function.Remove(_function.IndexOf(' '))];
-                if (func != null)
-                    func.Execute(argument);
-                else
-                    throw new InterpreterException("Function is invalid");
-            }
-            catch (ArgumentOutOfRangeException)
-            {
-                Function? func = TimeNamespace.Namespace[_function];
-                if (func != null)
-                    func.Execute(argument);
-                else
-                    throw new InterpreterException("Function is invalid");
-            }
-            catch (Exception ex)
-            {
-                RCI_Core.WriteError(ex.ToString());
-            }
-        }
-        else
-        {
-            RCI_Core.WriteError("Invalid namespace name");
         }
     }
 }
@@ -290,13 +247,13 @@ public class Function
     /// Method that executes function's delegate
     /// </summary>
     /// <param name="argument">Argument to delegate</param>
-    public void Execute(object argument) => action(argument);
+    public void Execute(object? argument) => action(argument);
 
     /// <summary>
     /// Function action delegate
     /// </summary>
     /// <param name="argument">Argument to delegate</param>
-    public delegate void FuncAction(object argument);
+    public delegate void FuncAction(object? argument);
 }
 
 /// <summary>
