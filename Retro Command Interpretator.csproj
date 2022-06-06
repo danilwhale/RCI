@@ -12,9 +12,9 @@
     <Company>danilwhale software</Company>
     <NeutralLanguage>en</NeutralLanguage>
 	  <LangVersion>preview</LangVersion>
-	  <AssemblyVersion>1.1</AssemblyVersion>
-	  <FileVersion>1.1</FileVersion>
-	  <Version>1.1</Version>
+	  <AssemblyVersion>1.3</AssemblyVersion>
+	  <FileVersion>1.3</FileVersion>
+	  <Version>1.3</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -28,7 +28,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="rci_script.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Include="cmd_IDI_APPICON.ico" />
+    <Content Include="rci_script.ico" />
   </ItemGroup>
 
 </Project>

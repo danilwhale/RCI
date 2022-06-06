@@ -5,7 +5,24 @@ public static class RCI_Core
 {
     static string changelog =
         """
-        
+        <Changelog is from GitHub>
+
+        RCI 1.3
+        - Added ability to run script files (with .rci extension)
+        - Now to run file/program you don't need to use run command
+        - run command associated to run scripts instead of files/programs
+        - Classes in source code seperated into files, instead of having all classes in RCI_Core.cs
+
+        RCI 1.2.1
+        - Changed version from `1.1` to `1.2.1` in project files lol
+
+        RCI 1.2
+        - Added 'rm' and 'md' commands
+        - - 'rm' for removing file/directories
+        - - 'md' for creating directories
+        - Added 'run' command to run/open files in system
+        - Now 'help' command uses raw string literal instad of many strings
+
         RCI 1.1
         - Changed function calling (from namespace->function: argument to namespace::function argument)
         - Changed syntaxis from C#-like to C/C++-like (CleanScreen to cleanScreen)
@@ -54,25 +71,29 @@ public static class RCI_Core
     public static void SendHelp()
     {
         Console.WriteLine(
-            "Default commands:\n" +
-            "-- sendOut: <message> - prints message\n" +
-            "-- help - prints this message\n" +
-            "-- cleanScreen - cleans screen\n" +
-            "-- whatsHere - print current directory content\n" +
-            "-- goIn <directory> - goes in to specified directory\n" +
-            "-- changelog - prints changes\n" +
-            "-- run <file> - runs file out of RCI" +
-            "Namespaces (NAMESPACE::FUNCTION ARGUMENT):\n" +
-            "- Time namespace:\n" +
-            "-- nowDate - prints date\n" +
-            "-- nowTime - prints time\n" +
-            "- File namespace:\n" +
-            "-- readFile <file> - reads file and prints it content\n" +
-            "-- writeFile <file>; <text> - writes specified text to file\n" +
-            "-- createFile <file> - creates file with specified name\n" +
-            "-- removeFile <file> - removes specified file\n" +
-            "-- isExists <file> - writes that file exists or doesn't exists\n" +
-            "-- info <file> - writes info about file"  
+            """
+            Default commands:
+            -- sendOut: <message> - prints message
+            -- help - prints this message
+            -- cleanScreen - cleans screen
+            -- whatsHere - print current directory content
+            -- goIn <directory> - goes in to specified directory
+            -- changelog - prints changes
+            -- run <script>.rci - runs script file in RCI (confirming only .rci extensions)
+            -- rm <dirname/filename> - removes specified file/empty directory
+            -- md <dirname> - creates new directory with specified name
+            Namespaces (NAMESPACE::FUNCTION ARGUMENT):
+            Time namespace:
+            -- nowDate - prints date
+            -- nowTime - prints time
+            File namespace:
+            -- readFile <file> - reads file and prints it content
+            -- writeFile <file>; <text> - writes specified text to file
+            -- createFile <file> - creates file with specified name
+            -- removeFile <file> - removes specified file
+            -- isExists <file> - writes that file exists or doesn't exists
+            -- info <file> - writes info about file
+            """
         );
 
     }
@@ -159,109 +180,5 @@ public static class RCI_Core
         Console.WriteLine(changelog);
     }
 }
-/// <summary>
-/// Instance of Namespace
-/// </summary>
-public class Namespace
-{
-    /// <summary>
-    /// Array of functions
-    /// </summary>
-    public Function[] Functions = Array.Empty<Function>();
-    /// <summary>
-    /// Name of namespace
-    /// </summary>
-    public string Name { get; set; } = string.Empty;
 
-    /// <summary>
-    /// Indexator to get function in this namespace
-    /// </summary>
-    /// <param name="name"></param>
-    /// <returns></returns>
-    public Function? this[string name]
-    {
-        get { return Array.Find(Functions, f => f.Name == name); }
-    }
-    /// <summary>
-    /// Executes function in namespace
-    /// </summary>
-    /// <param name="_namespace">Name of namespace</param>
-    /// <param name="_function">Name of function</param>
-    /// <param name="argument">Argument</param>
-    /// <exception cref="InterpreterException">If, function invalid</exception>
-    public static void Execute(string _namespace, string _function, object? argument)
-    {
-        foreach (Namespace ns in BasicNamespaces.namespaces)
-        {
-            if (ns.Name == _namespace)
-            {
-                try
-                {
-                    Function? func = ns[_function];
 
-                    if (func != null)
-                        func?.Execute(argument);
-                    else
-                        throw new InterpreterException($"Invalid function");
-                }
-                catch (InterpreterException ex)
-                {
-                    RCI_Core.WriteError(ex.Message);
-                }
-                catch (Exception ex)
-                {
-                    RCI_Core.WriteError(ex.ToString());
-                }
-            }
-        }
-    }
-}
-
-/// <summary>
-/// Instance of Function
-/// </summary>
-public class Function
-{
-    /// <summary>
-    /// Action of function
-    /// </summary>
-    private readonly FuncAction action;
-
-    /// <summary>
-    /// Name of function
-    /// </summary>
-    public string Name { get; set; }
-
-    /// <summary>
-    /// Function ctor (constructor)
-    /// </summary>
-    /// <param name="action">Action to handle</param>
-    /// <param name="name">Name of function</param>
-    public Function(FuncAction action, string name)
-    {
-        this.action = action;
-        Name = name;
-    }
-
-    /// <summary>
-    /// Method that executes function's delegate
-    /// </summary>
-    /// <param name="argument">Argument to delegate</param>
-    public void Execute(object? argument) => action(argument);
-
-    /// <summary>
-    /// Function action delegate
-    /// </summary>
-    /// <param name="argument">Argument to delegate</param>
-    public delegate void FuncAction(object? argument);
-}
-
-/// <summary>
-/// Exception which raises when function is invalid (for now)
-/// </summary>
-public class InterpreterException : Exception
-{
-    public InterpreterException() { }
-    public InterpreterException(string message) : base(message) { }
-    public InterpreterException(string message, Exception inner) : base(message, inner) { }
-}
