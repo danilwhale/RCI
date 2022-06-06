@@ -11,8 +11,12 @@ Another simple interpreter, but on C#
 * Moving in directories
 * Outputing text
 
+### Requirments to run
+* .NET 6.0.3 Runtime and newer
+* Windows 7 or newer
+
 ## Source code compilation
-To compile you need Visual Studio 2022 or .NET SDK 6.0.200 and newer
+To compile you need Visual Studio 2022 or .NET SDK 6.0.~~200~~ 3 and newer
 ### To compile in Visual Studio 2022
 * Download source code
 * * To download go to Releases and select 'Source code'
