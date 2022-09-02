@@ -1,6 +1,6 @@
-﻿using Retro_Command_Interpretator.Namespaces;
+﻿using RCI.Namespaces;
 
-namespace Retro_Command_Interpretator;
+namespace RCI;
 /// <summary>
 /// Instance of Namespace
 /// </summary>
@@ -13,7 +13,7 @@ public class Namespace
     /// <summary>
     /// Name of namespace
     /// </summary>
-    public string Name { get; set; } = string.Empty;
+    public string Name { get; set; } = null!;
 
     /// <summary>
     /// Indexator to get function in this namespace
@@ -31,9 +31,9 @@ public class Namespace
     /// <param name="_function">Name of function</param>
     /// <param name="argument">Argument</param>
     /// <exception cref="InterpreterException">If, function invalid</exception>
-    public static void Execute(string _namespace, string _function, object? argument)
+    public static void Execute(Namespace[] namespaces, string _namespace, string _function, FunctionArgs arguments)
     {
-        foreach (Namespace ns in BasicNamespaces.namespaces)
+        foreach (Namespace ns in namespaces)
         {
             if (ns.Name == _namespace)
             {
@@ -42,7 +42,7 @@ public class Namespace
                     Function? func = ns[_function];
 
                     if (func != null)
-                        func?.Execute(argument);
+                        func?.Execute(arguments);
                     else
                         throw new InterpreterException($"Invalid function");
                 }

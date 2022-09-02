@@ -1,7 +1,8 @@
 ﻿
 using System.Reflection;
+using RCI.NSAPI;
 
-namespace Retro_Command_Interpretator
+namespace RCI
 {
     class Program
     {
@@ -11,6 +12,9 @@ namespace Retro_Command_Interpretator
 
             if (args.Length == 0)
             {
+                NSAPI_Core.ImportPlugins();
+                Console.WriteLine();
+
                 Console.WriteLine(
                     $"RCI version: {Assembly.GetEntryAssembly()?.GetName().Version}\n" +
                     $".NET version: {Environment.Version}\n" +

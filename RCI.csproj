@@ -1,11 +1,11 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net6.0-windows</TargetFramework>
-    <RootNamespace>Retro_Command_Interpretator</RootNamespace>
+    <TargetFramework>net6.0</TargetFramework>
+    <RootNamespace>RCI</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
-    <StartupObject>Retro_Command_Interpretator.Program</StartupObject>
+    <StartupObject>RCI.Program</StartupObject>
     <ApplicationIcon>cmd_IDI_APPICON.ico</ApplicationIcon>
     <Nullable>enable</Nullable>
     <Authors>danilwhale</Authors>
@@ -14,7 +14,7 @@
 	  <LangVersion>preview</LangVersion>
 	  <AssemblyVersion>1.3</AssemblyVersion>
 	  <FileVersion>1.3</FileVersion>
-	  <Version>1.3</Version>
+	  <Version>1.4.0</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -34,6 +34,18 @@
   <ItemGroup>
     <Content Include="cmd_IDI_APPICON.ico" />
     <Content Include="rci_script.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Plugins\Hierarchy.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Plugins\RCI_BasicModules\RCI.BasicModules.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Plugins\RCI_BasicModules\readme.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

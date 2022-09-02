@@ -1,11 +1,20 @@
-﻿using Retro_Command_Interpretator.Namespaces;
+﻿using System.Text;
+using RCI.Namespaces;
+using RCI.NSAPI;
 
-namespace Retro_Command_Interpretator;
+namespace RCI;
 public static class RCI_Core
 {
-    static string changelog =
+    public const string CommandSeparator = "::";
+    public const string changelog =
         """
         <Changelog is from GitHub>
+
+        RCI 1.4
+        - Added plugin support! \o/
+        - - See "Plugins" folder for more information
+        - Separated File and Time namespaces from RCI to plugin
+        - Added "plugins" command to see all installed plugins
 
         RCI 1.3
         - Added ability to run script files (with .rci extension)
@@ -37,9 +46,9 @@ public static class RCI_Core
     /// Accesses function in namespace (for interpreter loop)
     /// </summary>
     /// <param name="input">Input string with command to access function</param>
-    public static void AccessFunction(string input)
+    internal static void AccessFunction(string input)
     {
-        string[] namefunc = input.Split("::"); // splits to namespace and function
+        string[] namefunc = input.Split(CommandSeparator); // splits to namespace and function
 
         if (namefunc.Length < 2 || string.IsNullOrWhiteSpace(namefunc[1])) // checking for invalid namespace usage
             WriteError("Invalid namespace usage");
@@ -56,11 +65,11 @@ public static class RCI_Core
 
                 namefunc[1] = namefunc[1].Split(' ')[0];
 
-                Namespace.Execute(namefunc[0], namefunc[1], args); // executing it
+                Namespace.Execute(AllNamespaces.namespaces, namefunc[0], namefunc[1], new(args.Split(';'))); // executing it
             }
             else // else if not
             {
-                Namespace.Execute(namefunc[0], namefunc[1], null); // we just send "bla" argument to function (lol)
+                Namespace.Execute(AllNamespaces.namespaces, namefunc[0], namefunc[1], new()); // we just send "bla" argument to function (lol)
             }
         }
 
@@ -68,33 +77,43 @@ public static class RCI_Core
     /// <summary>
     /// Method that sends help in console
     /// </summary>
-    public static void SendHelp()
+    internal static void SendHelp()
     {
-        Console.WriteLine(
+        StringBuilder pluginHelp = new();
+
+        foreach (IPlugin? plug in NSAPI_Core.Plugins)
+        {
+            if (plug == null)
+                continue;
+
+            pluginHelp.AppendLine($"\n\"{plug.Name}\" by \"{plug.Author}\":");
+            foreach (Namespace ns in plug.Namespaces)
+            {
+                pluginHelp.AppendLine($"- \"{ns.Name}\" Namespace: ");
+                foreach (Function function in ns.Functions)
+                {
+                    pluginHelp.AppendLine($"--- {function.Name} {function.Usage} - {function.Description}");
+                }
+            }
+        }
+
+        RCI_Core.WriteTip(
             """
-            Default commands:
-            -- sendOut: <message> - prints message
-            -- help - prints this message
-            -- cleanScreen - cleans screen
-            -- whatsHere - print current directory content
-            -- goIn <directory> - goes in to specified directory
-            -- changelog - prints changes
-            -- run <script>.rci - runs script file in RCI (confirming only .rci extensions)
-            -- rm <dirname/filename> - removes specified file/empty directory
-            -- md <dirname> - creates new directory with specified name
-            Namespaces (NAMESPACE::FUNCTION ARGUMENT):
-            Time namespace:
-            -- nowDate - prints date
-            -- nowTime - prints time
-            File namespace:
-            -- readFile <file> - reads file and prints it content
-            -- writeFile <file>; <text> - writes specified text to file
-            -- createFile <file> - creates file with specified name
-            -- removeFile <file> - removes specified file
-            -- isExists <file> - writes that file exists or doesn't exists
-            -- info <file> - writes info about file
-            """
-        );
+            - Default commands:
+            --- send <message> - prints message
+            --- help - prints this message
+            --- cls - cleans screen
+            --- dir - print current directory content
+            --- go <directory> - goes in to specified directory
+            --- changelog - prints changes
+            --- run <script>.rci - runs script file in RCI (confirming only .rci extensions)
+            --- rm <dirname/filename> - removes specified file/empty directory
+            --- md <dirname> - creates new directory with specified name
+            --- plugins - prints all installed plugins with its namespaces and function count
+            --- stop - closes RCI
+            """ + 
+            "\nNamespaces (NAMESPACE::FUNCTION ARGUMENT):" + "\n" + pluginHelp.ToString()
+        ); ;
 
     }
     /// <summary>
@@ -130,7 +149,7 @@ public static class RCI_Core
     /// <summary>
     /// Method that prints current directory content
     /// </summary>
-    public static void PrintCurrentDirectory()
+    internal static void PrintCurrentDirectory()
     {
         Console.Clear();
 
@@ -175,9 +194,47 @@ public static class RCI_Core
         return boolean ? "Yes" : "No";
     }
 
-    public static void Changelog()
+    internal static void Changelog()
     {
         Console.WriteLine(changelog);
+    }
+    public static string GetSizeString(long size)
+    {
+        string[] sizes =
+        {
+            "Byte",
+            "KB",
+            "MB",
+            "GB",
+            "TB"
+        };
+
+        int vsize = 0;
+
+        while (size >= 1024 && vsize < sizes.Length - 1)
+        {
+            vsize++;
+            size /= 1024;
+        }
+
+        return $"{size} {sizes[vsize]}";
+    }
+    internal static void PrintPlugins()
+    {
+        foreach (var plugin in NSAPI_Core.Plugins)
+        {
+            if (plugin == null)
+                continue;
+
+            StringBuilder namespaces = new();
+
+            foreach (var _namespace in plugin.Namespaces)
+            {
+                namespaces.AppendLine($"- \"{_namespace.Name}\", {_namespace.Functions.Length} function(s)");
+            }
+
+            Console.WriteLine($"\"{plugin.Name}\" {plugin.Version} by \"{plugin.Author}\"\n{namespaces}");
+        }
     }
 }
 

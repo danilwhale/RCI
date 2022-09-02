@@ -1,24 +1,25 @@
 ﻿using System.Diagnostics;
+using RCI.NSAPI;
 
-namespace Retro_Command_Interpretator;
+namespace RCI;
 public static class Parser
 {
     public static void ParseScript(string input)
     {
-        if (input!.StartsWith("sendOut"))
+        if (input!.StartsWith("send"))
         {
-            if (input.Length < 8)
-                RCI_Core.WriteTip("Usage of \"sendOut\": sendOut <text>");
+            if (input.Length < 5)
+                RCI_Core.WriteTip("Usage of \"send\": send <text>");
             else
             {
-                if (input[7] == ' ')
+                if (input[4] == ' ')
                     Console.WriteLine(input[(input.IndexOf(' ')+1)..]);
                 else
-                    RCI_Core.WriteTip("Usage of \"sendOut\": sendOut <text>");
+                    RCI_Core.WriteTip("Usage of \"send\": send <text>");
             }
 
         }
-        else if (input!.StartsWith("cleanScreen"))
+        else if (input!.StartsWith("cls"))
         {
             Console.Clear();
         }
@@ -26,7 +27,7 @@ public static class Parser
         {
             RCI_Core.SendHelp();
         }
-        else if (input!.StartsWith("whatsHere"))
+        else if (input!.StartsWith("dir"))
         {
             RCI_Core.PrintCurrentDirectory();
         }
@@ -34,17 +35,17 @@ public static class Parser
         {
             RCI_Core.Changelog();
         }
-        else if (input!.StartsWith("goIn"))
+        else if (input!.StartsWith("go"))
         {
-            if (input.Length < 6)
-                RCI_Core.WriteTip("Usage of \"goIn\": goIn <directoryName>");
+            if (input.Length < 4)
+                RCI_Core.WriteTip("Usage of \"go\": go <directoryName>");
             else
             {
-                if (input[4] != ' ')
+                if (input[2] != ' ')
                     RCI_Core.WriteTip("You need space before directory name");
 
-                if (Directory.Exists(input[5..]))
-                    Environment.CurrentDirectory = input[5..];
+                if (Directory.Exists(input[3..]))
+                    Environment.CurrentDirectory = input[3..];
                 else
                     RCI_Core.WriteError("Invalid directory");
             }
@@ -129,9 +130,25 @@ public static class Parser
                 }
             }
         }
+        else if (input.StartsWith("plugins"))
+        {
+            Console.WriteLine();
+            RCI_Core.PrintPlugins();
+            Console.WriteLine();
+        }
         else if (input.Contains("::"))
         {
             RCI_Core.AccessFunction(input);
+        }
+        else if (NSAPI_Core.FindNamespace(input) != null)
+        {
+            Console.WriteLine();
+            RCI_Core.WriteTip($"You're trying to access \"{input}\"\nHere all command list of \"{input}\" functions:");
+            foreach (var cmd in NSAPI_Core.FindNamespace(input)!.Functions)
+            {
+                RCI_Core.WriteColored($"{cmd.Name} {cmd.Usage} - {cmd.Description}", ConsoleColor.Cyan);
+            }
+            Console.WriteLine();
         }
         else if (string.IsNullOrWhiteSpace(input))
         {

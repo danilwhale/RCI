@@ -1,0 +1,60 @@
+﻿NSAPI Little Documentation:
+NSAPI - NameSpace API
+
+P.S (Maybe have problem with words, I'm not know well English)
+
+It's a little NSAPI (API for namespace-plugins) documentation,
+explore source on GitHub (https://github.com/localwhale20/RCI)
+for detailed knowledge about namespace-plugin development
+
+- Create plugin <.NET/.NET 6>
+Open your Visual Studio 2022 or other studio with any 
+.NET support (it will better with .NET 6 features).
+
+I'm will describe instructions with .NET 6 and .NET 5 or earlier
+features.
+
+Create new 'Class Library' project with your selected .NET version.
+And, after creation, import references to RCI 
+by right-clicking on 'Dependencies' in 'Solution Explorer'
+and selecting 'Add Project reference...', then 'Browse...', going
+to your RCI installation path, and selecting 'RCI.dll'.
+Now you'll have all access to RCI features.
+
+Now, you need to make your class, inherited from 'RCI.NSAPI.Plugin'
+to make it visible in RCI, you need to make something like:
+
+public class PluginName : IPlugin
+{
+    public string Name => "PluginName"; // replace to your plugin name
+
+    // uncomment line on next line to make it work on earlier c# than 10 and comment/delete line with 'new()' operator
+    // public Version version => new Version("1.0.0");
+    public Version Version => new("1.0.0"); // replace to your plugin version
+    public string Author => "PluginAuthor"; // replace to your plugin authot
+    public Namespace[] Namespaces => Array.Empty<Namespace>(); // replace it by array of your namespaces
+}
+
+- Custom namespace <.NET/.NET 6>
+To make namespace, just inherit RCI.Namespace class and make something like:
+
+public class NamespaceName : Namespace
+{
+    private static readonly Function.FuncAction[] funcacts =
+    {
+        coolPrint
+    };
+    private static readonly Function[] funcs =
+    {
+        new(funcacts[0], "coolPrint"),
+    };
+
+    public NamespaceName()
+    {
+        Name = "NamespaceName";
+        Functions = funcs;
+    }
+
+    private static void coolPrint(FunctionArgs args) =>
+        Console.WriteLine("Cool text")
+}

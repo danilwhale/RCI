@@ -1,4 +1,4 @@
-﻿namespace Retro_Command_Interpretator;
+﻿namespace RCI;
 
 /// <summary>
 /// Exception which raises when function is invalid (for now)

@@ -1,0 +1,16 @@
+﻿Plugins Hierarchy Information:
+
+All plugins need to have hierarchy, like:
+
+┌ PluginFolder
+├── PluginAssembly.dll
+└── <plugin_files>
+
+In 'PluginFolder', you can have any thing you want
+images, texts, anything.
+
+So, please dont install all plugins in root folder (Plugins)
+To prevent conflicts with files and etc.
+
+eto ya.
+- danilwhale
